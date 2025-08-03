@@ -16,11 +16,11 @@ export def hrm app
 	# Use vite's connect instance as middleware
 	app.use(vite.middlewares)
 
-	app.get '/' do(req, res, next)
+	app.get /^\/(?!api).*/ do(req, res, next)
 		try
 			const template = await fs.readFile(path.resolve('./index.html'), 'utf-8')
-			
-			res.status(200).set({ 'Content-Type': 'text/html' }).end(template)
+			const html = await vite.transformIndexHtml(req.originalUrl, template)
+			res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
 		catch e
 			vite.ssrFixStacktrace(e)
 			return next(e)
